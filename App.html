@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tango Calc - حساب أرباح الميني ماركت</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header {
+            background: var(--secondary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .header h1 .logo {
+            font-weight: bold;
+            color: var(--primary);
+            background: white;
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+            border-left: 5px solid var(--success);
+        }
+        
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        .result h3 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .result p {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .result .value {
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        
+        .history {
+            margin-top: 30px;
+        }
+        
+        .history h3 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+        
+        .currency {
+            color: var(--accent);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span class="logo">TANGO</span> CALC</h1>
+        </div>
+        
+        <div class="content">
+            <div class="input-group">
+                <label for="cost">تكلفة الشراء (ليرة سورية)</label>
+                <input type="number" id="cost" placeholder="أدخل تكلفة المنتج">
+            </div>
+            
+            <div class="input-group">
+                <label for="price">سعر البيع (ليرة سورية)</label>
+                <input type="number" id="price" placeholder="أدخل سعر البيع">
+            </div>
+            
+            <div class="input-group">
+                <label for="quantity">الكمية</label>
+                <input type="number" id="quantity" placeholder="أدخل الكمية" value="1">
+            </div>
+            
+            <div class="input-group">
+                <label for="expenses">المصاريف الإضافية (ليرة سورية) - اختياري</label>
+                <input type="number" id="expenses" placeholder="أدخل المصاريف الإضافية" value="0">
+            </div>
+            
+            <button onclick="calculateProfit()">احسب الربح</button>
+            
+            <div id="result" class="result">
+                <h3>📊 نتيجة الحساب:</h3>
+                <p>إجمالي المبيعات: <span id="totalSales" class="value"></span> <span class="currency">ل.س</span></p>
+                <p>إجمالي التكلفة: <span id="totalCost" class="value"></span> <span class="currency">ل.س</span></p>
+                <p>المصاريف: <span id="totalExpenses" class="value"></span> <span class="currency">ل.س</span></p>
+                <p>صافي الربح: <span id="netProfit" class="value"></span> <span class="currency">ل.س</span></p>
+                <p>نسبة الربح: <span id="profitPercentage" class="value"></span>%</p>
+            </div>
+            
+            <div class="history">
+                <h3>📋 سجل الحسابات</h3>
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>التكلفة</th>
+                            <th>سعر البيع</th>
+                            <th>الكمية</th>
+                            <th>الربح</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <!-- سيتم إضافة السجلات هنا ديناميكيًا -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // دالة لحساب الربح
+        function calculateProfit() {
+            // الحصول على القيم من الحقول
+            const cost = parseFloat(document.getElementById('cost').value);
+            const price = parseFloat(document.getElementById('price').value);
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+            
+            // التحقق من صحة البيانات المدخلة
+            if (isNaN(cost) || isNaN(price) || isNaN(quantity) || cost <= 0 || price <= 0 || quantity <= 0) {
+                alert("يرجى إدخال قيم صحيحة في جميع الحقول");
+                return;
+            }
+            
+            // إجراء العمليات الحسابية
+            const totalSales = price * quantity;
+            const totalCost = cost * quantity;
+            const netProfit = totalSales - totalCost - expenses;
+            const profitPercentage = ((netProfit / totalCost) * 100).toFixed(2);
+            
+            // عرض النتائج
+            document.getElementById('totalSales').textContent = totalSales.toLocaleString();
+            document.getElementById('totalCost').textContent = totalCost.toLocaleString();
+            document.getElementById('totalExpenses').textContent = expenses.toLocaleString();
+            document.getElementById('netProfit').textContent = netProfit.toLocaleString();
+            document.getElementById('profitPercentage').textContent = profitPercentage;
+            
+            // إظهار نتيجة الحساب
+            document.getElementById('result').classList.add('show');
+            
+            // إضافة الحساب إلى سجل الحسابات
+            addToHistory(cost, price, quantity, netProfit);
+        }
+        
+        // دالة لإضافة الحساب إلى السجل
+        function addToHistory(cost, price, quantity, profit) {
+            const historyBody = document.getElementById('historyBody');
+            const newRow = document.createElement('tr');
+            
+            newRow.innerHTML = `
+                <td>${cost.toLocaleString()}</td>
+                <td>${price.toLocaleString()}</td>
+                <td>${quantity}</td>
+                <td>${profit.toLocaleString()}</td>
+            `;
+            
+            historyBody.appendChild(newRow);
+        }
+    </script>
+</body>
+</html>
